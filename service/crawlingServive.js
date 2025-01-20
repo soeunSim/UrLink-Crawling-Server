@@ -1,14 +1,13 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require("puppeteer");
 const crawlingService = (async () => {
-
   const browser = await puppeteer.launch();
 
   const page = await browser.newPage();
 
-  await page.goto('https://example.com');
+  await page.goto("https://example.com");
 
   await page.waitForFunction(
-    'window.performance.timing.loadEventEnd - window.performance.timing.navigationStart >= 500'
+    "window.performance.timing.loadEventEnd - window.performance.timing.navigationStart >= 500"
   );
 
   const pageSourceHTML = await page.content();
