@@ -1,7 +1,11 @@
 const express = require("express");
-const { crawlingService } = require("../service/crawlingService");
+
+const { getCrawlingTitle } = require("../service/crawlingTitleService");
+const { getCrawlingKeyword } = require("../service/crawlingKeywordService");
+
 const router = express.Router();
 
-router.get("/", crawlingService);
+router.get("/:url", getCrawlingTitle);
+router.get("/:url/search", getCrawlingKeyword);
 
 module.exports = router;
