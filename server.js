@@ -7,6 +7,4 @@ const port = process.env.port || 3000;
 
 app.use("/crawl", crawlRoute);
 
-app.listen(port, () => {
-  console.log(`Crawling server start on port ${port}`);
-});
+app.listen(port);
