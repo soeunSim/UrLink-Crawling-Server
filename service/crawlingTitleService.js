@@ -8,9 +8,6 @@ const getCrawlingTitle = async (req, res) => {
     const page = await browser.newPage();
 
     await page.goto(decodedLink);
-    await page.waitForFunction(
-      "window.performance.timing.loadEventEnd - window.performance.timing.navigationStart >= 500"
-    );
 
     const element = await page.$("title");
     const title = await page.evaluate(

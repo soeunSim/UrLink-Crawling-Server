@@ -8,9 +8,6 @@ const getCrawlingKeyword = async (req, res) => {
     const page = await browser.newPage();
 
     await page.goto(decodedLink);
-    await page.waitForFunction(
-      "window.performance.timing.loadEventEnd - window.performance.timing.navigationStart >= 500"
-    );
 
     let innerText = await page.evaluate(() => document.body.innerText);
     const hasKeyword = innerText.includes(req.query.keyword);
