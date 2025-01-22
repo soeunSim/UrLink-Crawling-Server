@@ -15,10 +15,6 @@ const getCrawlingKeyword = async (req, res) => {
     let innerText = await page.evaluate(() => document.body.innerText);
     const hasKeyword = innerText.includes(req.query.keyword);
 
-    if (!hasKeyword) {
-      innerText = `해당 키워드가 포함되어 있지 않은 url입니다.`;
-    }
-
     return res.status(200).json({
       urlLink: req.params.url,
       keyword: req.query.keyword,
