@@ -12,18 +12,18 @@ const getCrawlingKeyword = async (req, res) => {
       "window.performance.timing.loadEventEnd - window.performance.timing.navigationStart >= 500"
     );
 
-    let textContent = await page.evaluate(() => document.body.textContent);
-    const hasKeyword = textContent.includes(req.query.keyword);
+    let innerText = await page.evaluate(() => document.body.innerText);
+    const hasKeyword = innerText.includes(req.query.keyword);
 
     if (!hasKeyword) {
-      textContent = `해당 키워드가 포함되어 있지 않은 url입니다.`;
+      innerText = `해당 키워드가 포함되어 있지 않은 url입니다.`;
     }
 
     return res.status(200).json({
       urlLink: req.params.url,
       keyword: req.query.keyword,
       hasKeyword: hasKeyword,
-      urlText: textContent,
+      urlText: innerText,
     });
   } catch (error) {
     return res.status(500).send({ message: `[ServerError occured] ${error}` });
