@@ -1,36 +1,28 @@
 const puppeteer = require("puppeteer");
 
-const getCrawling = async (link, res) => {
-  const decodedLink = decodeURIComponent(link);
+const getCrawlingKeyword = async (req, res) => {
+  const decodedLink = decodeURIComponent(req.params.url);
+  const browser = await puppeteer.launch({ headless: true });
 
-  console.log("decodedLink: ", decodedLink);
+  try {
+    const page = await browser.newPage();
 
-  const browser = await puppeteer.launch();
+    await page.goto(decodedLink);
 
-  const page = await browser.newPage();
+    let innerText = await page.evaluate(() => document.body.innerText);
+    const hasKeyword = innerText.includes(req.query.keyword);
 
-  await page.goto(link);
-
-  await page.waitForFunction(
-    "window.performance.timing.loadEventEnd - window.performance.timing.navigationStart >= 500"
-  );
-
-  // const pageSourceHTML = await page.content();
-  // const innertext = await page.evaluate(() => document.body.innerText);
-  // console.log("innertext: ", innertext);
-
-  const element = await page.$("title"); // Example selector: h1
-
-  const textContent = await page.evaluate(
-    (element) => element.textContent,
-    element
-  );
-
-  await browser.close();
-
-  return res.status(200).json({
-    textContent,
-  });
+    return res.status(200).json({
+      urlLink: req.params.url,
+      keyword: req.query.keyword,
+      hasKeyword: hasKeyword,
+      urlText: innerText,
+    });
+  } catch (error) {
+    return res.status(500).send({ message: `[ServerError occured] ${error}` });
+  } finally {
+    await browser.close();
+  }
 };
 
-module.exports = { getCrawling };
+module.exports = { getCrawlingKeyword };
