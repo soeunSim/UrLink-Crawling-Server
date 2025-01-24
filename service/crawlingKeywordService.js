@@ -23,9 +23,9 @@ const getCrawlingKeyword = async (req, res) => {
     let innerText = await page.evaluate(() => document.body.innerText);
     const hasKeyword = innerText.includes(req.query.keyword);
 
-    if (hasKeyword === true) {
+    if (hasKeyword) {
       return res.status(200).json({
-        urlLink: req.params.url,
+        url: req.params.url,
         keyword: req.query.keyword,
         hasKeyword: hasKeyword,
         urlText: innerText,
@@ -47,14 +47,14 @@ const getCrawlingKeyword = async (req, res) => {
       if (!iframeUrl || !hasiframeUrlOfNaver) {
         throw new Error(`[Invalid iframe URL]`);
       }
-      if (hasKeywordOfIframe === true) {
+      if (hasKeywordOfIframe) {
         return res.status(200).json({
           urlLink: req.params.url,
           keyword: req.query.keyword,
           hasKeyword: hasKeywordOfIframe,
           urlText: iframeInnerText,
         });
-      } else if (hasKeywordOfIframe === false) {
+      } else if (!hasKeywordOfIframe) {
         return res
           .status(200)
           .send({ message: `[This keyword does not exist]` });
@@ -63,7 +63,7 @@ const getCrawlingKeyword = async (req, res) => {
           `[The requested page does not exist or a problem occurred]`
         );
       }
-    } else if (hasKeyword === false) {
+    } else if (!hasKeyword) {
       return res.status(200).send({ message: `[This keyword does not exist]` });
     }
   } catch (error) {
