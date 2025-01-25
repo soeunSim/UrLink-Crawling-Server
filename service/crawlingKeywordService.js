@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 
-function isCheckTrueThisUrl(url) {
+const isCheckTrueThisUrl = (url) => {
   /* eslint-disable */
   const urlRegex = /^(http|https):\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/;
   if (urlRegex.test(url)) {
@@ -8,7 +8,7 @@ function isCheckTrueThisUrl(url) {
   } else {
     return false;
   }
-}
+};
 
 const getCrawlingKeyword = async (req, res) => {
   const decodedUrl = decodeURIComponent(req.params.url);
@@ -26,7 +26,8 @@ const getCrawlingKeyword = async (req, res) => {
     if (hasKeyword) {
       return res.status(200).json({
         url: req.params.url,
-        keyword: req.query.keyword,
+        urlLink: req.params.url,
+        eyword,
         hasKeyword: hasKeyword,
         urlText: innerText,
       });
