@@ -27,7 +27,6 @@ const getCrawlingKeyword = async (req, res) => {
       return res.status(200).json({
         url: req.params.url,
         urlLink: req.params.url,
-        eyword,
         hasKeyword: hasKeyword,
         urlText: innerText,
       });
