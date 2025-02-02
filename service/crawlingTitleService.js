@@ -10,13 +10,14 @@ const getCrawlingTitle = async (req, res) => {
     await page.goto(decodedLink);
 
     const title = await page.$eval("title", (element) => element.textContent);
-    const hasTitleKeyword = title.includes(keyword);
+    const hasTitleKeyword = title.toUpperCase().includes(keyword.toUpperCase());
 
     if (!title) {
       return res.status(200).send({ message: `[This Title does not exist]` });
     }
 
     return res.status(200).json({
+      url: req.params.url,
       hasKeyword: hasTitleKeyword,
       urlTitle: title,
     });

@@ -2,25 +2,21 @@ const puppeteer = require("puppeteer");
 
 const getCrawlingKeyword = async (req, res) => {
   const decodedUrl = decodeURIComponent(req.params.url);
+  const keyword = req.query.keyword;
   const browser = await puppeteer.launch({ headless: true });
   const TIMEOUT = 20000;
 
   try {
     const page = await browser.newPage();
-
     await page.goto(decodedUrl);
 
     let innerText = await page.evaluate(() => document.body.innerText);
-    const hasKeyword = innerText.includes(req.query.keyword);
+    const upperCasedKeyword = keyword.toUpperCase();
+    const hasKeyword = innerText.toUpperCase().includes(upperCasedKeyword);
 
-    const keywordSentence = getAllSentence(innerText).find((sentence) =>
-      sentence.includes(req.query.keyword)
+    const urlText = getAllSentence(innerText).find((sentence) =>
+      sentence.toUpperCase().includes(upperCasedKeyword)
     );
-
-    let urlText = "";
-    if (keywordSentence) {
-      urlText = getKeywordSentence(keywordSentence, req.query.keyword);
-    }
 
     if (hasKeyword) {
       return res.status(200).json({
@@ -40,16 +36,14 @@ const getCrawlingKeyword = async (req, res) => {
         "https://blog.naver.com"
       );
       let iframeInnerText = await page.evaluate(() => document.body.innerText);
-      const hasKeywordOfIframe = iframeInnerText.includes(req.query.keyword);
+      const upperCasedKeyword = keyword.toUpperCase();
+      const hasKeywordOfIframe = iframeInnerText
+        .toUpperCase()
+        .includes(upperCasedKeyword);
 
-      const keywordSentence = getAllSentence(iframeInnerText).find((sentence) =>
-        sentence.includes(req.query.keyword)
+      const urlText = getAllSentence(iframeInnerText).find((sentence) =>
+        sentence.includes(upperCasedKeyword)
       );
-
-      let urlText = "";
-      if (keywordSentence) {
-        urlText = getKeywordSentence(keywordSentence, req.query.keyword);
-      }
 
       if (!iframeUrl || !hasiframeUrlOfNaver) {
         throw new Error(`[Invalid iframe URL]`);
@@ -109,29 +103,6 @@ const getAllSentence = (innerText) => {
       }
       return array;
     }, []);
-};
-
-const getKeywordSentence = (sentence, keyword) => {
-  const theNumberOfWordBefore = 3;
-  const theNumberOfWordAfter = 3;
-  const words = sentence.split(/\s+/);
-  const keywordIndex = words.findIndex((word) => word.includes(keyword));
-  const startWordIndex = Math.max(0, keywordIndex - theNumberOfWordBefore);
-  const endWordIndex = Math.min(
-    words.length,
-    keywordIndex + theNumberOfWordAfter + 1
-  );
-  const slicedWords = words.slice(startWordIndex, endWordIndex);
-  let keywordSentence = slicedWords.join(" ");
-
-  if (startWordIndex >= 0) {
-    keywordSentence = "... " + keywordSentence;
-  }
-  if (endWordIndex <= words.length) {
-    keywordSentence += " ...";
-  }
-
-  return keywordSentence;
 };
 
 module.exports = { getCrawlingKeyword };

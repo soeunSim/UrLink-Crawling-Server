@@ -13,8 +13,9 @@ const getCrawlingContentKeyword = async (req, res) => {
     const title = await page.$eval("title", (element) => element.textContent);
     let innerText = await page.$eval("body", (body) => body.innerText);
 
-    const hasTitleKeyword = title.includes(keyword);
-    let hasKeyword = innerText.includes(keyword);
+    const upperCasedKeyword = keyword.toUpperCase();
+    const hasTitleKeyword = title.toUpperCase().includes(upperCasedKeyword);
+    let hasKeyword = innerText.toUpperCase().includes(upperCasedKeyword);
 
     if (!innerText) {
       await page.waitForSelector("iframe", { timeout: TIMEOUT });
@@ -26,21 +27,16 @@ const getCrawlingContentKeyword = async (req, res) => {
         "https://blog.naver.com"
       );
       innerText = await page.evaluate(() => document.body.innerText);
-      hasKeyword = innerText.includes(keyword);
+      hasKeyword = innerText.toUpperCase().includes(upperCasedKeyword);
 
       if (!iframeUrl || !hasiframeUrlOfNaver) {
         throw new Error(`[Invalid iframe URL]`);
       }
     }
 
-    const keywordSentence = getAllSentence(innerText).find((sentence) =>
-      sentence.includes(keyword)
+    const urlText = getAllSentence(innerText).find((sentence) =>
+      sentence.toUpperCase().includes(upperCasedKeyword)
     );
-
-    let urlText = "";
-    if (keywordSentence) {
-      urlText = getKeywordSentence(keywordSentence, keyword);
-    }
 
     if (hasKeyword) {
       return res.status(200).json({
@@ -90,29 +86,6 @@ const getAllSentence = (innerText) => {
       }
       return array;
     }, []);
-};
-
-const getKeywordSentence = (sentence, keyword) => {
-  const theNumberOfWordBefore = 3;
-  const theNumberOfWordAfter = 3;
-  const words = sentence.split(/\s+/);
-  const keywordIndex = words.findIndex((word) => word.includes(keyword));
-  const startWordIndex = Math.max(0, keywordIndex - theNumberOfWordBefore);
-  const endWordIndex = Math.min(
-    words.length,
-    keywordIndex + theNumberOfWordAfter + 1
-  );
-  const slicedWords = words.slice(startWordIndex, endWordIndex);
-  let keywordSentence = slicedWords.join(" ");
-
-  if (startWordIndex >= 0) {
-    keywordSentence = "... " + keywordSentence;
-  }
-  if (endWordIndex <= words.length) {
-    keywordSentence += " ...";
-  }
-
-  return keywordSentence;
 };
 
 module.exports = { getCrawlingContentKeyword };
